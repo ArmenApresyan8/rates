@@ -42,11 +42,16 @@ class RatesFragment : Fragment() {
                 .subscribeOn(Schedulers.io())
                 .subscribe(this::addRates)
 
+        viewModel.baseValue.observe(viewLifecycleOwner, Observer {
+            viewModel.updateValues()
+            adapter.notifyItemRangeChanged(1, adapter.itemCount - 1)
+        })
+
         val layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
         adapter = RatesAdapter(context!!)
         ratesRecyclerView.adapter = adapter
         ratesRecyclerView.layoutManager = layoutManager
-
+        adapter.viewModel = viewModel
         viewModel.ratesLiveData.observe(viewLifecycleOwner, Observer<MutableList<RateItem>> {
             adapter.rateItems = it
         })

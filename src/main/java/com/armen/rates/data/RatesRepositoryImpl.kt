@@ -10,6 +10,7 @@ class RatesRepositoryImpl : RatesRepository {
 
     private val requestInterface: GetRatesService by lazy {
         Retrofit.Builder()
+                .baseUrl("https://hiring.revolut.codes")
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build().create(GetRatesService::class.java)

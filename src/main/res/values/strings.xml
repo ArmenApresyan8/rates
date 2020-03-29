@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Rates</string>
+    <string name="rate_image_text">Rate image</string>
 </resources>

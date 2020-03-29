@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.armen.rates.R
 import com.armen.rates.data.RateItem
@@ -16,6 +17,7 @@ import com.bumptech.glide.request.RequestOptions
 import kotlinx.android.synthetic.main.rate_item.view.*
 
 class RatesAdapter(private val context: Context) : RecyclerView.Adapter<RatesAdapter.RateViewHolder>() {
+
 
     private val glide: RequestManager by lazy {
         Glide.with(context)

@@ -7,49 +7,46 @@ import com.armen.rates.data.RateItem
 import com.armen.rates.data.RatesData
 
 class RatesViewModel : ViewModel() {
-    private val ratesLiveData: MutableList<MutableLiveData<RateItem>> = mutableListOf()
+    val ratesLiveData: MutableLiveData<MutableList<RateItem>> = MutableLiveData()
     lateinit var base: String
     var baseValue: Float = 100f
 
     fun setRatesData(ratesData: RatesData) {
         val rates = ratesData.rates
         base = ratesData.base
-        createMutableLiveData(base, baseValue)
+        ratesLiveData.value = mutableListOf()
+        createRateItem(base, 1F)
         for (key in rates.keys) {
-            createMutableLiveData(key, rates[key]!!)
+            createRateItem(key, rates[key]!!)
         }
     }
 
     fun updateRates(ratesData: RatesData) {
         val rates = ratesData.rates
         for (key in rates.keys) {
-            val data = findLiveData(key)
+            val data = findRateItem(key)
             data?.let {
-                val rateItem = (data.value as RateItem)
-                rateItem.value = baseValue * rateItem.value
+                it.value = baseValue * it.rate
             }
         }
     }
 
-    private fun createMutableLiveData(key: String, value: Float) {
-        val rateItem = createRateItem(key, value)
-        val data = MutableLiveData<RateItem>()
-        data.value = rateItem
-        ratesLiveData.add(data)
+    private fun createRateItem(key: String, rate: Float) {
+        val rateItem = when(key) {
+            "EUR" -> RateItem(R.drawable.ic_euro, key, "Euro", rate, rate * baseValue)
+            "AUD" -> RateItem(R.drawable.ic_euro, key, "Australian dollar", rate, rate * baseValue)
+            "BGN" -> RateItem(R.drawable.ic_euro, key, "Bulgarian lev", rate, rate * baseValue)
+            else -> RateItem(R.drawable.ic_euro, key, "", rate, rate * baseValue)
+        }
+        ratesLiveData.value?.add(rateItem)
     }
 
-    private fun createRateItem(key: String, value: Float) = when(key) {
-        "AUD" -> RateItem(R.drawable.ic_euro, key, "Australian dollar", value)
-        "BGN" -> RateItem(R.drawable.ic_euro, key, "Bulgarian lev", value)
-        else -> RateItem(R.drawable.ic_euro, key, "", value)
-    }
-
-    private fun findLiveData(key: String):MutableLiveData<RateItem>? {
+    private fun findRateItem(key: String): RateItem? {
         if (key == base) {
             return null
         }
-        for (data in ratesLiveData) {
-            if ((data.value as RateItem).name == key) {
+        for (data in ratesLiveData.value!!) {
+            if (data.name == key) {
                 return data
             }
         }

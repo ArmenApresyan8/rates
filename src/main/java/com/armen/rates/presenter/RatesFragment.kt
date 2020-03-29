@@ -58,7 +58,9 @@ class RatesFragment : Fragment() {
 
         viewModel.baseValue.observe(viewLifecycleOwner, Observer {
             viewModel.updateValues()
-            adapter.notifyItemRangeChanged(1, adapter.itemCount - 1)
+            viewModel.ratesLiveData.value?.let {
+                adapter.notifyItemRangeChanged(1, adapter.itemCount - 1, it.subList(1, it.size).toList())
+            }
         })
 
         val layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
@@ -77,7 +79,9 @@ class RatesFragment : Fragment() {
 
     private fun updateRates(ratesData: RatesData) {
         viewModel.updateRates(ratesData)
-        adapter.notifyItemRangeChanged(1, adapter.itemCount - 1)
+        viewModel.ratesLiveData.value?.let {
+            adapter.notifyItemRangeChanged(1, adapter.itemCount - 1, it.subList(1, it.size).toList())
+        }
     }
 
     override fun onDestroy() {

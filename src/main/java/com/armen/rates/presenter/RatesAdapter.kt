@@ -52,7 +52,6 @@ class RatesAdapter(private val context: Context) : RecyclerView.Adapter<RatesAda
         holder.rateDescription.text = rateItem.description
         holder.rateEditText.setText("%.2f".format(rateItem.value))
 
-
         holder.rateEditText.addTextChangedListener(object : TextWatcher {
 
             override fun afterTextChanged(s: Editable?) {}
@@ -74,9 +73,16 @@ class RatesAdapter(private val context: Context) : RecyclerView.Adapter<RatesAda
                 }
             }
         })
+        holder.rateEditText.setOnFocusChangeListener { _, hasFocus -> if (hasFocus) moveToTop(position, rateItem) }
 
         holder.itemView.setOnClickListener {
-            viewModel?.let {
+            moveToTop(position, rateItem)
+        }
+    }
+
+    private fun moveToTop(position: Int, rateItem: RateItem) {
+        viewModel?.let {
+            if (it.base != rateItem.name) {
                 it.updateBase(position)
                 notifyItemMoved(position, 0)
                 recyclerView?.scrollToPosition(0)

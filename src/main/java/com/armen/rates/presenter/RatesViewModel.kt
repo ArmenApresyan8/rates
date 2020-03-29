@@ -10,7 +10,7 @@ class RatesViewModel : ViewModel() {
 
     val ratesLiveData: MutableLiveData<MutableList<RateItem>> = MutableLiveData()
     val baseValue: MutableLiveData<Float> = MutableLiveData(100F)
-    lateinit var base: String
+    var base: String = "EUR"
 
     fun setRatesData(ratesData: RatesData) {
         val rates = ratesData.rates
@@ -27,6 +27,7 @@ class RatesViewModel : ViewModel() {
         for (key in rates.keys) {
             val data = findRateItem(key)
             data?.let {
+                it.rate = rates[key]!!
                 it.value = baseValue.value!! * it.rate
             }
         }
@@ -96,9 +97,11 @@ class RatesViewModel : ViewModel() {
         if (key == base) {
             return null
         }
-        for (data in ratesLiveData.value!!) {
-            if (data.name == key) {
-                return data
+        if (ratesLiveData.value != null ) {
+            for (data in ratesLiveData.value!!) {
+                if (data.name == key) {
+                    return data
+                }
             }
         }
         return null

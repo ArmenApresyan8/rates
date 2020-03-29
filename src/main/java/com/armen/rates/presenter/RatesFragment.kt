@@ -1,11 +1,12 @@
 package com.armen.rates.presenter
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -28,6 +29,17 @@ class RatesFragment : Fragment() {
     private lateinit var adapter: RatesAdapter
     private lateinit var viewModel: RatesViewModel
     private val getRatesUseCase = GetRatesUseCase(RatesRepositoryImpl())
+    val mainHandler = Handler(Looper.getMainLooper())
+
+    private val updateTextTask = object : Runnable {
+        override fun run() {
+            disposable = getRatesUseCase.getRates(viewModel.base)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe(this@RatesFragment::updateRates)
+            mainHandler.postDelayed(this, 1000)
+        }
+    }
     private var disposable: Disposable? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -37,10 +49,12 @@ class RatesFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider.NewInstanceFactory().create(RatesViewModel::class.java)
-        disposable = getRatesUseCase.getImages()
+        disposable = getRatesUseCase.getRates(viewModel.base)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(this::addRates)
+
+        mainHandler.postDelayed(updateTextTask, 1000)
 
         viewModel.baseValue.observe(viewLifecycleOwner, Observer {
             viewModel.updateValues()
@@ -63,10 +77,21 @@ class RatesFragment : Fragment() {
 
     private fun updateRates(ratesData: RatesData) {
         viewModel.updateRates(ratesData)
+        adapter.notifyItemRangeChanged(1, adapter.itemCount - 1)
     }
 
     override fun onDestroy() {
         super.onDestroy()
         disposable?.dispose()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mainHandler.removeCallbacks(updateTextTask)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mainHandler.post(updateTextTask)
     }
 }

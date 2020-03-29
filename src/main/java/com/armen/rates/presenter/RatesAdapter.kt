@@ -47,7 +47,7 @@ class RatesAdapter(private val context: Context) : RecyclerView.Adapter<RatesAda
     override fun onBindViewHolder(holder: RateViewHolder, position: Int) {
         val rateItem = rateItems[position]
         glide.load(rateItem.resId).apply(RequestOptions.circleCropTransform())
-                .diskCacheStrategy(DiskCacheStrategy.RESOURCE).into(holder.rateImage)
+                .diskCacheStrategy(DiskCacheStrategy.ALL).into(holder.rateImage)
         holder.rateName.text = rateItem.name
         holder.rateDescription.text = rateItem.description
         holder.rateEditText.setText("%.2f".format(rateItem.value))
@@ -62,7 +62,10 @@ class RatesAdapter(private val context: Context) : RecyclerView.Adapter<RatesAda
                 viewModel?.let {
                     if (rateItem.name == it.base && holder.adapterPosition == 0) {
                         try {
-                            val value = s.toString().toFloat()
+                            var value = 0F
+                            if (!s.isNullOrEmpty()) {
+                                value = s.toString().toFloat()
+                            }
                             if (it.baseValue.value != value) {
                                 it.baseValue.value = value
                             }

@@ -3,7 +3,7 @@ package com.armen.rates.domain
 import com.armen.rates.data.RatesData
 import io.reactivex.Observable
 
-class GetRatesUseCase(private val imagesRepository: RatesRepository) {
-    fun getImages(): Observable<RatesData> = imagesRepository.getRates("EUR")
+class GetRatesUseCase(private val ratesRepository: RatesRepository) {
+    fun getRates(base: String): Observable<RatesData> = ratesRepository.getRates(base)
 }
 

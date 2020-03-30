@@ -29,9 +29,9 @@ class RatesFragment : Fragment() {
     private lateinit var adapter: RatesAdapter
     private lateinit var viewModel: RatesViewModel
     private val getRatesUseCase = GetRatesUseCase(RatesRepositoryImpl())
-    val mainHandler = Handler(Looper.getMainLooper())
+    private val mainHandler = Handler(Looper.getMainLooper())
 
-    private val updateTextTask = object : Runnable {
+    private val updateRatesTask = object : Runnable {
         override fun run() {
             disposable = getRatesUseCase.getRates(viewModel.base)
                     .observeOn(AndroidSchedulers.mainThread())
@@ -53,8 +53,6 @@ class RatesFragment : Fragment() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(this::addRates)
-
-        mainHandler.postDelayed(updateTextTask, 1000)
 
         viewModel.baseValue.observe(viewLifecycleOwner, Observer {
             viewModel.updateValues()
@@ -91,11 +89,11 @@ class RatesFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        mainHandler.removeCallbacks(updateTextTask)
+        mainHandler.removeCallbacks(updateRatesTask)
     }
 
     override fun onResume() {
         super.onResume()
-        mainHandler.post(updateTextTask)
+        mainHandler.postDelayed(updateRatesTask, 1000)
     }
 }

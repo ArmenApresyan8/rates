@@ -46,7 +46,7 @@ class RatesAdapter(private val context: Context) : RecyclerView.Adapter<RatesAda
 
     override fun onBindViewHolder(holder: RateViewHolder, position: Int, payloads: MutableList<Any>) {
         super.onBindViewHolder(holder, position, payloads)
-        if (payloads.isNotEmpty()) {
+        if (payloads.isNotEmpty() && position > 0) {
             val value = (payloads[0] as List<RateItem>)[position - 1].value
             holder.rateEditText.setText("%.2f".format(value))
         }
